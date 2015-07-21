@@ -38,11 +38,11 @@ Follow these CLI commands to install all dependencies::
     $ wget http://repo.continuum.io/miniconda/Miniconda-3.5.5-Linux-x86_64.sh
     $ chmod +x Miniconda-3.5.5-Linux-x86_64.sh
     $ ./Miniconda-3.5.5-Linux-x86_64.sh
-    $ 기본적으로 $HOME/conda 에 설치됩니다. 
+    $ 기본적으로 $HOME/miniconda 에 설치됩니다. 
     $ 향후 설치에 필요한 패키지 추가 
     $ sudo apt-get install libxml2-dev libxslt1-dev python-dev python-lxml
     $
-    $ export PATH=$HOME/conda/bin:$PATH 로 conda 실행파일에 경로를 추가해주세요! 
+    $ export PATH=$HOME/miniconda/bin:$PATH 로 conda 실행파일에 경로를 추가해주세요! 
     $
     $ # Create a Python env
     $ conda create --name nexusdash pip 
@@ -54,6 +54,10 @@ Follow these CLI commands to install all dependencies::
     $ pip install -r requirements.txt
 
 NOTE: Get the latest nexusdash from here: https://bitbucket.org/abarik1981/nexusdash
+
+   간단한 실행 방법 
+   $ startup.sh 이후 서버의 ${local_ip}:5550 으로 접속! 
+   $ 종료시 shutdown.sh 
 
 2) Start the Django Server
 --------------------------
@@ -69,12 +73,13 @@ Follow these CLI commands to run the Django Server::
     $ 
     $ # Sync Database and create root admin account
     $ python manage.py syncdb
-    $ 
+    $ python manage.py migrate 
+    $
     $ # To run in Development env
-    $ python manage.py runserver 0.0.0.0:5555 --noreload
+    $ python manage.py runserver 0.0.0.0:5550
     $ 
     $ # To run in Production env
-    $ python manage.py runserver 0.0.0.0:5555 --noreload
+    $ python manage.py runserver 0.0.0.0:5550 --noreload
     
 
 
