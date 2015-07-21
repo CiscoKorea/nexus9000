@@ -38,9 +38,12 @@ Follow these CLI commands to install all dependencies::
     $ wget http://repo.continuum.io/miniconda/Miniconda-3.5.5-Linux-x86_64.sh
     $ chmod +x Miniconda-3.5.5-Linux-x86_64.sh
     $ ./Miniconda-3.5.5-Linux-x86_64.sh
-    $ 
+    $ 기본적으로 $HOME/conda 에 설치됩니다. 
+    $
+    $ export PATH=$HOME/conda/bin:$PATH 로 conda 실행파일에 경로를 추가해주세요! 
+    $
     $ # Create a Python env
-    $ conda create --name nexusdash
+    $ conda create --name nexusdash pip 
     $ source activate nexusdash
     $ conda install pip
     $ 
