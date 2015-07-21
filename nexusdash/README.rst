@@ -39,6 +39,8 @@ Follow these CLI commands to install all dependencies::
     $ chmod +x Miniconda-3.5.5-Linux-x86_64.sh
     $ ./Miniconda-3.5.5-Linux-x86_64.sh
     $ 기본적으로 $HOME/conda 에 설치됩니다. 
+    $ 향후 설치에 필요한 패키지 추가 
+    $ sudo apt-get install libxml2-dev libxslt1-dev python-dev python-lxml
     $
     $ export PATH=$HOME/conda/bin:$PATH 로 conda 실행파일에 경로를 추가해주세요! 
     $
