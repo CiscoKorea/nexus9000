@@ -3,6 +3,7 @@
 '''
 
 from nxapi.nxapi_utils import NXAPITransport
+from nxapi.errors import cmd_exec_error 
 from urlparse import urlparse
 import time
 import json
@@ -151,8 +152,11 @@ class FetchViaNxapi(FetchCliOut):
             self.health_statuses.append((('Memory Used (%): {0:.2f}'
                                          ''.format(mem_used_percent)), 
                                          healthy_mem))
-                
-            current_memory_status = o1['current_memory_status']
+            
+            if not o1.has_key('current_memory_status'):
+                current_memory_status = 'OK'    
+            else:
+                current_memory_status = o1['current_memory_status']
             if current_memory_status != 'OK':
                 healthy_mem_txt = False
                 healthy = False
@@ -163,27 +167,39 @@ class FetchViaNxapi(FetchCliOut):
                                          healthy_mem_txt))
             
             o2 = json.loads(NXAPITransport.clid('show module'))
-            online_diag_statuses = o2['TABLE_moddiaginfo']['ROW_moddiaginfo']
-            diagstatuses = True
-            for r in online_diag_statuses:
-                diagstatus = r['diagstatus']
-                if diagstatus != 'Pass':
-                    diagstatuses = False
-                    healthy = False
-                    self.health_statuses.append((('Module no. {0} '
+            try :
+                online_diag_statuses = o2['TABLE_moddiaginfo']['ROW_moddiaginfo']
+                diagstatuses = True
+                for r in online_diag_statuses:
+                    diagstatus = r['diagstatus']
+                    if diagstatus != 'Pass':
+                        diagstatuses = False
+                        healthy = False
+                        self.health_statuses.append((('Module no. {0} '
                                                  'Diag Status: {1}'
                                                  ''.format(r['mod'], diagstatus)), 
                                                  diagstatuses))
             
-            if diagstatuses:
-                self.health_statuses.append(('Modules Diag Status: Pass', 
+                if diagstatuses:
+                    self.health_statuses.append(('Modules Diag Status: Pass', 
                                              diagstatuses))
-            
+            except KeyError: 
+                 pass 
             modinfo = o2['TABLE_modinfo']['ROW_modinfo']
             modstatus = True
-            for r in modinfo:
-                status = r['status']
+            if type(modinfo) == dict:  #N3K issue
+                r = modinfo
+                status = r['status'].strip()
                 if status not in ['ok', 'active', 'active *', 'standby']:
+                    modstatus = False
+                    healthy = False
+                    self.health_statuses.append((('Module no. {0} Status: {1}'
+                                                  ''.format(r['modinf']), status), 
+                                                 modstatus))
+            else:
+                for r in modinfo:
+                    status = r['status']
+                if status.strip() not in ['ok', 'active', 'active *', 'standby']:
                     modstatus = False
                     healthy = False
                     self.health_statuses.append((('Module no. {0} Status: {1}'
@@ -218,7 +234,10 @@ class FetchViaNxapi(FetchCliOut):
                         ''.format(o['kern_uptm_days'], o['kern_uptm_hrs'],
                                   o['kern_uptm_mins'], o['kern_uptm_secs']))
             devicename = o['host_name']
-            o = json.loads(NXAPITransport.clid('show clock'))
+            try:
+                o = json.loads(NXAPITransport.clid('show clock'))
+            except cmd_exec_error: # N3K issue
+                o['simple_time']  = NXAPITransport.cli('show clock')
             ostime = o["simple_time"]
             d['osplatform'] = version
             d['osdevicename'] = devicename
@@ -289,7 +308,10 @@ class FetchViaNxapi(FetchCliOut):
         if self._is_online:
             o = json.loads(NXAPITransport.clid('show module'))
             try:
-                diaginfos = o['TABLE_moddiaginfo']['ROW_moddiaginfo'] 
+                try :
+                    diaginfos = o['TABLE_moddiaginfo']['ROW_moddiaginfo'] 
+                except KeyError:
+                    diaginfos = None
                 modinfos = o['TABLE_modinfo']['ROW_modinfo']
                 modmacinfos = o['TABLE_modmacinfo']['ROW_modmacinfo']
                 for r in modinfos:
@@ -300,7 +322,8 @@ class FetchViaNxapi(FetchCliOut):
                     d['mod_id'] = r['modinf']
                     d['ports'] = r['ports']
                     d['serial_no'] = [i['serialnum'] for i in modmacinfos if i['modmac'] == d['mod_id']][0]
-                    d['diag_stat'] = [i['diagstatus'] for i in diaginfos if i['mod'] == d['mod_id']][0]
+                    if diaginfos != None:
+                        d['diag_stat'] = [i['diagstatus'] for i in diaginfos if i['mod'] == d['mod_id']][0]
                     l.append(d)
             except Exception as e:
                 print 'Error while get_modulestats', e
