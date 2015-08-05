@@ -32,7 +32,7 @@ class HostNames(models.Model):
     polling_interval = models.FloatField(default=settings.POLLING_INTERVAL_DEFAULT)
     polling_timestamp = models.FloatField(null=True)
     polling_method = models.CharField(max_length=30, default=settings.POLLING_METHOD_CLI)       # Can be: 'routercli', 'nxapi'
-    os_type = models.CharField(null=True, max_length=30)
+    os_type = models.CharField(null=True, max_length=200)
     error_online = models.CharField(null=True, max_length=1000)
     health_statuses = models.CharField(null=True, max_length=1000)
     

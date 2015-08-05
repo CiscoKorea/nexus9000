@@ -25,14 +25,25 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 ########## DATABASE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
-    'default': {
+    'sqlite3': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': normpath(join(DJANGO_ROOT, 'db.sqlite3')),
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
         'PORT': '',
+        'OPTIONS': {
+	    'timeout':20,
+	},
+    },
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'OPTIONS': {
+            'read_default_file': '/home/ubuntu/my.cnf',
+            'init_command': 'SET storage_engine=INNODB',
+        },
     }
+
 }
 ########## END DATABASE CONFIGURATION
 
