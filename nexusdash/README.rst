@@ -40,8 +40,9 @@ Follow these CLI commands to install all dependencies::
     $ ./Miniconda-3.5.5-Linux-x86_64.sh
     $ 기본적으로 $HOME/miniconda 에 설치됩니다. 
     $ 향후 설치에 필요한 패키지 추가 
-    $ sudo apt-get install libxml2-dev libxslt1-dev python-dev python-lxml
-    $
+    $ sudo apt-get install libxml2-dev libxslt1-dev python-dev python-lxml libmysqlclient-dev
+    $ 여러개의 nexus switch 추가시 database locked 오류에 대해서 mysql로 backend 변경시 libmysqlclient-dev 패키지 필요 
+    
     $ export PATH=$HOME/miniconda/bin:$PATH 로 conda 실행파일에 경로를 추가해주세요! 
     $
     $ # Create a Python env
