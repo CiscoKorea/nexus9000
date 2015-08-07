@@ -9,6 +9,8 @@ import time
 import json
 import os
 import re
+import traceback
+import sys
 
 
 VERSION_OUT_FRMT = 'CHASSIS: {chassis}; IMAGE: {image}'
@@ -154,7 +156,7 @@ class FetchViaNxapi(FetchCliOut):
                                          healthy_mem))
             
             if not o1.has_key('current_memory_status'):
-                current_memory_status = 'OK'    
+                current_memory_status = 'NA'    
             else:
                 current_memory_status = o1['current_memory_status']
             if current_memory_status != 'OK':
@@ -312,11 +314,21 @@ class FetchViaNxapi(FetchCliOut):
                     diaginfos = o['TABLE_moddiaginfo']['ROW_moddiaginfo'] 
                 except KeyError:
                     diaginfos = None
-                modinfos = o['TABLE_modinfo']['ROW_modinfo']
-                modmacinfos = o['TABLE_modmacinfo']['ROW_modmacinfo']
+                tmpmodinfo = o['TABLE_modinfo']['ROW_modinfo']
+                if type(tmpmodinfo) == dict:  #N3K issue 
+                    modinfos = list()
+                    modinfos.append( tmpmodinfo)
+                else:
+                    modinfos = o['TABLE_modinfo']['ROW_modinfo']
+                tmpmac = o['TABLE_modmacinfo']['ROW_modmacinfo'] 
+                if type(tmpmac) == dict: #N3K issue  
+                    modmacinfos = list()
+                    modmacinfos.append(tmpmac)
+                else:
+                    modmacinfos  = tmpmac
                 for r in modinfos:
                     d = dict()
-                    d['status'] = r['status']
+                    d['status'] = r['status'] 
                     d['hw_desc'] = r['modtype']
                     d['hw_model'] = r['model']
                     d['mod_id'] = r['modinf']
@@ -327,6 +339,7 @@ class FetchViaNxapi(FetchCliOut):
                     l.append(d)
             except Exception as e:
                 print 'Error while get_modulestats', e
+		traceback.print_exc(file=sys.stdout)
         return l
     
     def get_intstats(self):
